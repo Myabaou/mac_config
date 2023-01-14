@@ -20,6 +20,13 @@ https://code.visualstudio.com/docs/?dv=darwinarm64
 - 鍵コピー
 - configコピー
 
+### ユーザ設定
+
+```sh
+git config --global user.name "ユーザー名"
+git config --global user.email メールアドレス
+```
+
 ## Zsh設定
 - git 設定
 
