@@ -1,0 +1,8 @@
+[profile aws-sample]
+sso_start_url = https://d-XXXXXXXXXX.awsapps.com/start
+sso_region = ap-northeast-1
+sso_account_id = XXXXXXXXXX
+sso_role_name = Admin
+region = us-east-1
+output = json
+cli_pager = 

@@ -60,10 +60,16 @@ AppStoreからインストール
 AppStoreからインストール
 
 ## Terraformインストール
+brewを予めインストール済であること
+```sh
+brew install tfenv
+```
 
 
 ## /usr/local/bin設定
-
+- bin
 
 ## aws alias設定
+- aws
+
 
