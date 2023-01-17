@@ -1,0 +1,9 @@
+aws elasticache describe-cache-clusters | \
+    jq -r '.[][]
+         | [.CacheClusterId,
+            .CacheNodeType,
+            .CacheClusterStatus,
+            .ReplicationGroupId,
+            .EngineVersion]
+         | @tsv' | \
+    column -t
