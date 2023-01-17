@@ -1,0 +1,12 @@
+#!/bin/bash
+
+_OSLIST=$(aws opensearch list-domain-names --query 'DomainNames[].[DomainName]' --output text)
+
+
+echo -e "Name\tInstanceType\tInstanceCount\tMasterType\tMasterCount" > /tmp/opensearchlist
+for i in $_OSLIST
+do
+  aws opensearch describe-domain --domain-name ${i} --query 'DomainStatus.[DomainName,ClusterConfig.InstanceType,ClusterConfig.InstanceCount,ClusterConfig.DedicatedMasterType,ClusterConfig.DedicatedMasterCount]' --output text
+done >> /tmp/opensearchlist
+
+cat /tmp/opensearchlist | column -t

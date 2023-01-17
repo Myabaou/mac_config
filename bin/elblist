@@ -1,0 +1,13 @@
+#!/bin/sh
+
+
+#aws elbv2 describe-load-balancers | jq -r '.[][] | [
+#       .LoadBalancerName,
+#        .Type
+#        ] | @tsv' | column -t
+
+echo "==== Application/Network ELB ===="
+aws elbv2 describe-load-balancers --query 'LoadBalancers[].["LoadBalancerName","DNSName","Type"]' --output text | column -t
+
+echo "==== Classic ELB ===="
+aws elb describe-load-balancers --query 'LoadBalancerDescriptions[].["LoadBalancerName","DNSName"]' --output text | column -t

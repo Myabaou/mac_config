@@ -1,0 +1,34 @@
+echo "======= RDS Cluster =========="
+#aws rds describe-db-clusters | \
+#jq -r '.[][] 
+#| [.DBClusterIdentifier,
+#.Status,
+#.Endpoint,
+#.DBClusterMembers[].DBInstanceIdentifier] 
+#| @tsv' | \
+#column -t
+
+aws rds describe-db-clusters | \
+jq -r '.[][] 
+| [.DBClusterIdentifier,
+.Status,
+.EngineVersion,
+.Endpoint] 
+| @tsv' | \
+column -t
+
+
+
+echo "======= RDS Instance =========="
+aws rds describe-db-instances | \
+    jq -r '.[][]
+         | [.DBInstanceIdentifier,
+            .DBInstanceClass,
+            .DBClusterIdentifier,
+            .DBInstanceStatus]
+         | @tsv' | \
+    column -t
+    
+    
+echo "==== RDS Writer Instance ===="
+aws rds describe-db-clusters --query "DBClusters[].[DBClusterIdentifier,DBClusterMembers[].[DBInstanceIdentifier,IsClusterWriter]]" --output text

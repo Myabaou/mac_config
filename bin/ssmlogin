@@ -1,0 +1,14 @@
+#!/bin/bash
+
+_TARGET_EC2=$1
+
+case "$_TARGET_EC2" in
+  i-* ) aws ssm start-session --target $_TARGET_EC2 ;;
+  * ) echo "=== ${_TARGET_EC2} ===" 
+      _EC2_ID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=${_TARGET_EC2} Name=instance-state-name,Values=running --query "Reservations[].Instances[].InstanceId" --output text)
+      aws ssm start-session --target ${_EC2_ID}
+  ;;
+      
+esac
+
+

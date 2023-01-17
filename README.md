@@ -60,3 +60,10 @@ AppStoreからインストール
 AppStoreからインストール
 
 ## Terraformインストール
+
+
+## /usr/local/bin設定
+
+
+## aws alias設定
+

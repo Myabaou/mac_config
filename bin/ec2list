@@ -1,0 +1,25 @@
+#!/bin/bash
+
+function Ec2list () {
+aws ec2 describe-instances  \
+|       jq -r '.[][].Instances[]
+         | [[.Tags[] | select(.Key == "Name").Value][],
+            .InstanceId,
+            .PrivateIpAddress,
+            .InstanceType,
+            .LaunchTime,
+            .State.Name,
+            .Monitoring.State,
+            .PublicIpAddress
+            ]
+         | @tsv' | \
+         column -t
+}
+
+_OPTION=$@
+
+if [ -z ${_OPTION} ];then
+  Ec2list | sort
+else
+  Ec2list | grep ${_OPTION} | sort
+fi

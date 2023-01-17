@@ -1,0 +1,10 @@
+_PROFILE=profilename
+_INSTANCE_ID=i-XXXXXXXXXXX
+
+case $1 in 
+ start ) aws ec2 start-instances --instance-ids ${_INSTANCE_ID} --profile ${_PROFILE} ;;
+ stop ) aws ec2 stop-instances --instance-ids ${_INSTANCE_ID} --profile ${_PROFILE} ;;
+ reboot ) aws ec2 reboot-instances --instance-ids ${_INSTANCE_ID} --profile ${_PROFILE} ;;
+ * ) aws ec2 describe-instances --instance-ids ${_INSTANCE_ID} --profile ${_PROFILE} --query "Reservations[].Instances[][Tags[?Key=='Name'].Value|[0],PublicIpAddress,State.Name]" --output text
+ esac
+ 
