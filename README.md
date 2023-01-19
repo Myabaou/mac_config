@@ -65,6 +65,9 @@ brewを予めインストール済であること
 brew install tfenv
 ```
 
+## terraform-docsインストール
+
+
 
 ## /usr/local/bin設定
 - bin
