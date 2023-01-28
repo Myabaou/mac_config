@@ -1,0 +1,37 @@
+[toplevel]
+
+whoami = sts get-caller-identity
+id = sts get-caller-identity --query "Account" --output text
+
+alias =  iam list-account-aliases --query 'AccountAliases' --output text
+
+amilist = 
+  !f() {
+  aws ec2 describe-images \
+    --query 'sort_by(Images[*].{A_Name:Name,B_IMAGEID:ImageId,C_Date:CreationDate,D_SNAPSHOTID:join(`,`,BlockDeviceMappings[].Ebs.SnapshotId)},&A_Name)' \
+    --owners self \
+    --output text | column -t
+  }; f
+
+snapshotlist = 
+  !f() {
+  aws ec2 describe-snapshots \
+    --owner-ids self \
+    --query "Snapshots[*].{ID:SnapshotId,Time:StartTime,V_ID:VolumeId,Name:Tags[?Key=='Name'] | [0].Value}" \
+    --output text | column -t
+  }; f    
+   
+ # 1st parameter: <region>
+ecr-login =
+  !f() {
+    aws ecr get-login-password \
+      --region "${1}" \
+      | docker login \
+      --username AWS \
+      --password-stdin $(aws id).dkr.ecr.${1}.amazonaws.com
+  }; f
+
+iamlist = 
+  !f() {
+  aws iam list-users --query 'Users[].[UserName,Arn]' --output text | column -t
+  }; f
