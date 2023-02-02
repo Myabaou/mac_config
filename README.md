@@ -106,6 +106,11 @@ npm -v
 ```
 
 
+## pecoインストール
+
+```sh
+brew install peco
+```
 
 ## Authyインストール
 AppStoreからインストール
