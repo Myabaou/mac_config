@@ -106,6 +106,12 @@ npm -v
 ```
 
 
+## pecoインストール
+
+```sh
+brew install peco
+```
+
 
 ## Authyインストール
 AppStoreからインストール
@@ -216,3 +222,4 @@ finch run --rm public.ecr.aws/finch/hello-finch
 ## Docker For Macインストール
 
 https://docs.docker.com/desktop/install/mac-install/
+
