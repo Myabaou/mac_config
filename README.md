@@ -64,6 +64,7 @@ aws     compgen:96: no such file or directory: /usr/local/bin/aws_completer
 ```sh
 sudo ln -s /opt/homebrew/Cellar/awscli/2.9.15/libexec/bin/aws_completer /usr/local/bin/aws_completer
 ```
+awscli配下のバージョンはインストールのタイミングで異なるので、確認してから実行すること
 
 
 
@@ -161,7 +162,7 @@ As a result of the above problems, Terraform may not behave as intended.
 
 - Directory作成
 ```sh
-mkdir .terraform.d/plugin-cache
+mkdir ~/.terraform.d/plugin-cache
 ```
 
 - Version確認
@@ -191,6 +192,10 @@ open ~/Library/Keychains/aws-vault.keychain-db
 
 
 ## Terraform-docs
+
+```sh
+brew install terraform-docs
+```
 
 ## /usr/local/bin設定
 
@@ -223,3 +228,10 @@ finch run --rm public.ecr.aws/finch/hello-finch
 
 https://docs.docker.com/desktop/install/mac-install/
 
+
+
+## Goインストール
+
+```sh
+brew install go
+```
