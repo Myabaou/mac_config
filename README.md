@@ -27,6 +27,14 @@ git config --global user.name "ユーザー名"
 git config --global user.email メールアドレス
 ```
 
+.DS_Store をignoreする。
+
+```sh
+mkdir -p ~/.config/git
+echo '.DS_Store' >> ~/.config/git/ignore
+```
+
+
 ## Zsh設定
 - git 設定
 
