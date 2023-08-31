@@ -269,6 +269,30 @@ brew install romkatv/powerlevel10k/powerlevel10k
 echo "source $(brew --prefix)/opt/powerlevel10k/powerlevel10k.zsh-theme" >>~/.zshrc
 ```
 
+- 特殊フォントインストール
+```sh
+cd ~/
+git clone https://github.com/powerline/fonts
+ cd fonts
+ ./install.sh
+```
+
+ターミナルの設定画面でフォントを「DejaVu Sans Mono Powerline」に変更します。
+
+このままではVscodeのterminalの文字コードが表示されないので
+Vscodeの設定も変更します。
+
+Vscodeの設定で以下を追加
+```json
+{
+    [...]
+    "terminal.integrated.fontFamily": "DejaVu Sans Mono for Powerline",
+    [...]   
+}
+```
+![Alt text](01_VScode_001.png)
+
+
 ## infracost
 
 ```sh
