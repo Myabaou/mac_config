@@ -70,11 +70,27 @@ aws     compgen:96: no such file or directory: /usr/local/bin/aws_completer
 `/opt/homebrew/Cellar/awscli/2.9.15/libexec/bin/aws_completer`に対してシンボリックリンクを貼る。
 
 ```sh
-sudo ln -s /opt/homebrew/Cellar/awscli/2.9.15/libexec/bin/aws_completer /usr/local/bin/aws_completer
+sudo ln -s /opt/homebrew/Cellar/awscli/2.12.1/libexec/bin/aws_completer /usr/local/bin/aws_completer
 ```
 awscli配下のバージョンはインストールのタイミングで異なるので、確認してから実行すること
+`/usr/local/bin/aws_completer`がすでに存在した場合は削除してから実行する。
 
 
+#### アップグレードする場合
+
+```sh
+brew update
+```
+
+```sh
+brew upgrade awscli
+```
+
+- 再度シンボリックリンク作成
+```sh
+sudo rm -f /usr/local/bin/aws_completer
+sudo ln -s /opt/homebrew/Cellar/awscli/2.11.20/libexec/bin/aws_completer /usr/local/bin/aws_completer
+```
 
 
 ## awsp インストール
@@ -242,4 +258,19 @@ https://docs.docker.com/desktop/install/mac-install/
 
 ```sh
 brew install go
+```
+
+
+---
+## zsh プロンプト設定
+
+```sh
+brew install romkatv/powerlevel10k/powerlevel10k
+echo "source $(brew --prefix)/opt/powerlevel10k/powerlevel10k.zsh-theme" >>~/.zshrc
+```
+
+## infracost
+
+```sh
+brew install infracost
 ```

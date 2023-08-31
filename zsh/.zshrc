@@ -1,3 +1,10 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 # Git
  
 fpath=(~/.zsh $fpath)
@@ -60,8 +67,7 @@ setopt PROMPT_SUBST
 # カレントディレクトリバージョン
 #export PROMPT='%B%*%b$(aws_prof)%10F%B%r%1~%b%f:$(__git_ps1)  
 #export PROMPT='%B%*%b$(aws_prof)%10F%B%r%~%b%f:%F{red}$(__git_ps1 "%s")%f 
-export PROMPT='%B%*%b$(aws_prof)%10F%B%r%~%b%f:%F{red}$(__git_ps1 "%s")%f 
-〉'
+#export PROMPT='%B%*%b$(aws_prof)%10F%B%r%~%b%f: %F{red}$(__git_ps1 "%s")%f 
 
 
 ############### ターミナルのコマンド受付状態の表示変更
@@ -130,7 +136,7 @@ alias cd_bitbucket='cd ~/w/bB'
 eval $(/opt/homebrew/bin/brew shellenv)
 
 # zsh-syntax-highlighting
-source ${HOME}//Work/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source ${HOME}/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 # 存在するパスのハイライト
 ZSH_HIGHLIGHT_STYLES[path]='fg=cyan'
 
@@ -180,3 +186,99 @@ alias de='docker exec -it $(docker ps | peco | cut -d " " -f 1) /bin/bash'
 
 # IPアドレス
 alias ipinfo='curl inet-ip.info'
+
+
+# あまりいけてない設定
+#source /opt/homebrew/opt/powerlevel10k/powerlevel10k.zsh-theme
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+#[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+
+###############
+# git ブランチ名を色付きで表示させるメソッド
+function rprompt-git-current-branch {
+  local branch_name st branch_status
+
+  branch='\ue0a0'
+  color='%{\e[38;5;' #  文字色を設定
+  green='114m%}'
+  red='001m%}'
+  yellow='227m%}'
+  blue='033m%}'
+  reset='%{\e[0m%}'   # reset
+
+  color='%{\e[38;5;' #  文字色を設定
+  green='114m%}'
+
+  # ブランチマーク
+#  if [ ! -e  ".git" ]; then
+#    # git 管理されていないディレクトリは何も返さない
+#    return
+#  fi
+    branch_name=`git rev-parse --abbrev-ref HEAD 2> /dev/null`
+    st=`git status 2> /dev/null`
+  if [[ -n `echo "$st" | grep "^nothing to"` ]]; then
+    # 全て commit されてクリーンな状態
+    branch_status="${color}${green}${branch}"
+  elif [[ -n `echo "$st" | grep "^Untracked files"` ]]; then
+    # git 管理されていないファイルがある状態
+    branch_status="${color}${red}${branch}?"
+  elif [[ -n `echo "$st" | grep "^Changes not staged for commit"` ]]; then
+    # git add されていないファイルがある状態
+    branch_status="${color}${red}${branch}+"
+  elif [[ -n `echo "$st" | grep "^Changes to be committed"` ]]; then
+    # git commit されていないファイルがある状態
+    branch_status="${color}${yellow}${branch}!"
+  elif [[ -n `echo "$st" | grep "^rebase in progress"` ]]; then
+    # コンフリクトが起こった状態
+    echo "${color}${red}${branch}!(no branch)${reset}"
+    return
+  else
+    # 上記以外の状態の場合
+    branch_status="${color}${blue}${branch}"
+  fi
+
+  # ブランチ名を色付きで表示する
+  echo "${branch_status} $branch_name${reset}"
+  #echo " ${branch_name} ${branch_status}${reset}"
+}
+
+function custom_git_stash_prompt() {
+  local stash_count=$(git stash list 2> /dev/null | wc -l | tr -d ' ')  # 空白を削除
+  local output=""
+
+  if [[ $stash_count -gt 0 ]]; then
+    output+="%{\e[34m%}(stash:$stash_count)%{\e[0m%}"  # 34は青色のANSIコードです
+  fi
+
+  echo "$output"
+}
+
+
+
+
+# プロンプトが表示されるたびにプロンプト文字列を評価、置換する
+setopt prompt_subst
+
+
+
+
+# プロンプトの右側にメソッドの結果を表示させる
+#RPROMPT='`rprompt-git-current-branch`'
+#export PROMPT='%B%*%b$(aws_prof)%10F%B%r%~%b%f: `rprompt-git-current-branch` 
+#〉'
+
+
+
+#export PROMPT='%B%*%b$(aws_prof)%10K{blue}%r%~%k:%F{red}$(__git_ps1 "(%s)")%f
+#%F{green}〉%f'
+
+#export PROMPT='%B%*%b$(aws_prof)%10K{blue}%r%~%k:`rprompt-git-current-branch`
+#%F{green}〉%f'
+
+
+export PROMPT='%B%*%b$(aws_prof)%10K{blue}%r%~%k:`rprompt-git-current-branch` $(custom_git_stash_prompt)
+%F{green}〉%f'
+
+
