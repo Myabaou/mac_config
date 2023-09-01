@@ -206,6 +206,8 @@ function rprompt-git-current-branch {
   red='001m%}'
   yellow='227m%}'
   blue='033m%}'
+  purple='125m%}'  # 追加: プッシュされていないブランチ用の色
+  orange='208m%}'  # 差分があるブランチ用の色
   reset='%{\e[0m%}'   # reset
 
   color='%{\e[38;5;' #  文字色を設定
@@ -218,6 +220,13 @@ function rprompt-git-current-branch {
 #  fi
     branch_name=`git rev-parse --abbrev-ref HEAD 2> /dev/null`
     st=`git status 2> /dev/null`
+
+    # ローカルブランチがリモートにプッシュされていないかをチェック
+    local is_unpushed=$(git log @{u}.. 2> /dev/null)
+
+    # ローカルとリモートの差分をチェック
+    local has_diff=$(git diff @{u} 2> /dev/null)
+
   if [[ -n `echo "$st" | grep "^nothing to"` ]]; then
     # 全て commit されてクリーンな状態
     branch_status="${color}${green}${branch}"
@@ -230,6 +239,10 @@ function rprompt-git-current-branch {
   elif [[ -n `echo "$st" | grep "^Changes to be committed"` ]]; then
     # git commit されていないファイルがある状態
     branch_status="${color}${yellow}${branch}!"
+  elif [[ -n "$has_diff" ]]; then
+    branch_status="${color}${orange}${branch}~"  # ~ は差分があることを示す
+  elif [[ -n "$is_unpushed" ]]; then
+    branch_status="${color}${purple}${branch}^"  # ^ はプッシュされていないことを示す
   elif [[ -n `echo "$st" | grep "^rebase in progress"` ]]; then
     # コンフリクトが起こった状態
     echo "${color}${red}${branch}!(no branch)${reset}"
