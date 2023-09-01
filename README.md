@@ -298,4 +298,3 @@ Vscodeの設定で以下を追加
 ```sh
 brew install infracost
 ```
-

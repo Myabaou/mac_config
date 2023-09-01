@@ -227,7 +227,12 @@ function rprompt-git-current-branch {
     # ローカルとリモートの差分をチェック
     local has_diff=$(git diff @{u} 2> /dev/null)
 
-  if [[ -n `echo "$st" | grep "^nothing to"` ]]; then
+  if [[ -n "$has_diff" ]]; then
+    branch_status="${color}${orange}${branch}~"  # ~ は差分があることを示す
+  elif [[ -n "$is_unpushed" ]]; then
+    branch_status="${color}${purple}${branch}^"  # ^ はプッシュされていないことを示す
+ 
+  elif [[ -n `echo "$st" | grep "^nothing to"` ]]; then
     # 全て commit されてクリーンな状態
     branch_status="${color}${green}${branch}"
   elif [[ -n `echo "$st" | grep "^Untracked files"` ]]; then
@@ -239,10 +244,6 @@ function rprompt-git-current-branch {
   elif [[ -n `echo "$st" | grep "^Changes to be committed"` ]]; then
     # git commit されていないファイルがある状態
     branch_status="${color}${yellow}${branch}!"
-  elif [[ -n "$has_diff" ]]; then
-    branch_status="${color}${orange}${branch}~"  # ~ は差分があることを示す
-  elif [[ -n "$is_unpushed" ]]; then
-    branch_status="${color}${purple}${branch}^"  # ^ はプッシュされていないことを示す
   elif [[ -n `echo "$st" | grep "^rebase in progress"` ]]; then
     # コンフリクトが起こった状態
     echo "${color}${red}${branch}!(no branch)${reset}"
