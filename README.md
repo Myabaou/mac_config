@@ -299,3 +299,26 @@ Vscodeの設定で以下を追加
 brew install infracost
 ```
 
+## GitHub CLI Install for Apple Silicon
+
+- Install
+```sh
+brew install gh
+```
+
+- Auth
+```sh
+gh auth login
+```
+
+
+- Upgrade
+```sh
+brew upgrade gh
+```
+
+- Uninstall
+```sh
+brew uninstall gh
+```
+
