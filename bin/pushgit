@@ -13,6 +13,7 @@ GITADD="git add ."
 echo "[INFO] ${GITADD}"
 $GITADD
 GITCOMMIT="[INFO] git commit -m \"$1\""
+# 引数の値がうまくとれないのでそのまま実行
 git commit -m "$1"
 GITPUSH="git push origin head"
 echo $GITPUSH
