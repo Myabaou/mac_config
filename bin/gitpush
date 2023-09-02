@@ -19,13 +19,13 @@ GITPUSH="git push -u origin head"
 echo $GITPUSH
 $GITPUSH
 
-echo "[INFO] gh pullrequest command exsample."
-echo "gh pr create --title \"${1}\" --body \"${1}\" --base main"
+if [ "$2" == "-f" ]
+  then
+    echo "[INFO] Creating pull request"
+    gh pr create --title "$1" --body "$1" --base main
 
-CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-echo "Current branch: $CURRENT_BRANCH"
-
-gh pr list --state open --base main --head $CURRENT_BRANCH
-# gh pr merge pull_number
-echo "[INFO] gh pr merge <pull_number>"
-
+    echo "[INFO] Merging pull request"
+    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    PR_NUMBER=$(gh pr list --state open --base main --head $CURRENT_BRANCH --json number | jq -r '.[] | .number')
+    gh pr merge $PR_NUMBER
+fi
