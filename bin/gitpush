@@ -1,25 +1,40 @@
-#!/bin/sh
+#!/bin/bash
 
-# Perform add commit push with git command
-# Usage: pushgit.sh "commit message"
+while getopts ":f" opt; do
+  case ${opt} in
+    f )
+      FORCE_MERGE=true
+      ;;
+    \? )
+      echo "Invalid option: -$OPTARG" 1>&2
+      exit 1
+      ;;
+    : )
+      echo "Option -$OPTARG requires an argument" 1>&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND -1))
 
-# 引数の指定がなかったらエラー終了
-if [ $# -eq 0 ]; then
-  echo "Usage: pushgit.sh \"commit message\""
-  exit 1
+if [ $# -eq 0 ]
+  then
+    echo "No commit message supplied"
+    exit 1
 fi
 
 GITADD="git add ."
 echo "[INFO] ${GITADD}"
 $GITADD
+
 GITCOMMIT="[INFO] git commit -m \"$1\""
-# 引数の値がうまくとれないのでそのまま実行
 git commit -m "$1"
+
 GITPUSH="git push -u origin head"
 echo $GITPUSH
 $GITPUSH
 
-if [ "$2" == "-f" ]
+if [ "$FORCE_MERGE" = true ]
   then
     echo "[INFO] Creating pull request"
     gh pr create --title "$1" --body "$1" --base main
