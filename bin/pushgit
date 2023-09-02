@@ -13,8 +13,7 @@ GITADD="git add ."
 echo "[INFO] ${GITADD}"
 $GITADD
 GITCOMMIT="[INFO] git commit -m \"$1\""
-echo "$GITCOMMIT"
-$GITCOMMIT
+git commit -m "$1"
 GITPUSH="git push origin head"
 echo $GITPUSH
 $GITPUSH
