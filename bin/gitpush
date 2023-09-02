@@ -19,5 +19,8 @@ GITPUSH="git push -u origin head"
 echo $GITPUSH
 $GITPUSH
 
-echo "[INFO] gh pr command exsample."
+echo "[INFO] gh pullrequest command exsample."
 echo "gh pr create --title \"${1}\" --body \"${1}\" --base main --head head"
+
+# gh pr merge pull_number
+echo "gh merge pull_number"
