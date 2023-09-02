@@ -26,8 +26,8 @@ GITADD="git add ."
 echo "[INFO] ${GITADD}"
 $GITADD
 
-GITCOMMIT="[INFO] git commit -m \"$1\""
-git commit -m "$1"
+GITCOMMIT="[INFO] git commit -m \"$COMMIT_MESSAGE\""
+git commit -m "$COMMIT_MESSAGE"
 
 GITPUSH="git push -u origin head"
 echo $GITPUSH
@@ -36,7 +36,7 @@ $GITPUSH
 if [ "$FORCE_MERGE" = true ]
   then
     echo "[INFO] Creating pull request"
-    gh pr create --title "$1" --body "$1" --base main
+    gh pr create --title "$COMMIT_MESSAGE" --body "$COMMIT_MESSAGE" --base main
 
     echo "[INFO] Merging pull request"
     CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
