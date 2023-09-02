@@ -34,7 +34,7 @@ GITPUSH="git push -u origin head"
 echo $GITPUSH
 $GITPUSH
 
-if [ "$FORCE_MERGE" = true ]
+if [ -n "$FORCE_MERGE" ]
   then
     echo "[INFO] Creating pull request"
     gh pr create --title "$1" --body "$1" --base main
