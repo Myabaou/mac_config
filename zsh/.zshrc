@@ -226,11 +226,11 @@ function rprompt-git-current-branch {
 
   # ローカルブランチがリモートにプッシュされていないかをチェック
   local is_unpushed=""
-  if [[ -n "$has_upstream" ]]; then
+#  if [[ -n "$has_upstream" ]]; then
     is_unpushed=$(git log @{u}.. 2> /dev/null)
-  else
-    is_unpushed="no_upstream"  # アップストリームがない場合はこの値を設定
-  fi
+#  else
+#    is_unpushed="no_upstream"  # アップストリームがない場合はこの値を設定
+#  fi
 
 
 
