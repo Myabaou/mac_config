@@ -27,5 +27,5 @@ echo "Current branch: $CURRENT_BRANCH"
 
 gh pr list --state open --base main --head $CURRENT_BRANCH
 # gh pr merge pull_number
-echo "gh merge <pull_number>"
+echo "[INFO] gh pr merge <pull_number>"
 
