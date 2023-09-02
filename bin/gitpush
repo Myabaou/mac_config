@@ -19,5 +19,13 @@ GITPUSH="git push -u origin head"
 echo $GITPUSH
 $GITPUSH
 
-echo "[INFO] gh pr command exsample."
-echo "gh pr create --title \"${1}\" --body \"${1}\" --base main --head head"
+echo "[INFO] gh pullrequest command exsample."
+echo "gh pr create --title \"${1}\" --body \"${1}\" --base main"
+
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+echo "Current branch: $CURRENT_BRANCH"
+
+gh pr list --state open --base main --head $CURRENT_BRANCH
+# gh pr merge pull_number
+echo "gh merge <pull_number>"
+
