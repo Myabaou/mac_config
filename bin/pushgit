@@ -15,7 +15,7 @@ $GITADD
 GITCOMMIT="[INFO] git commit -m \"$1\""
 # 引数の値がうまくとれないのでそのまま実行
 git commit -m "$1"
-GITPUSH="git push origin head"
+GITPUSH="git push -u origin head"
 echo $GITPUSH
 $GITPUSH
 
