@@ -218,6 +218,10 @@ function rprompt-git-current-branch {
 #    # git 管理されていないディレクトリは何も返さない
 #    return
 #  fi
+
+# Gitリポジトリかどうかを確認
+  git rev-parse --is-inside-work-tree &> /dev/null || return
+
     branch_name=`git rev-parse --abbrev-ref HEAD 2> /dev/null`
     st=`git status 2> /dev/null`
 
