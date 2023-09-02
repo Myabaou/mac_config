@@ -12,7 +12,7 @@ fi
 GITBRANCH="git branch $1"
 echo "[INFO] ${GITBRANCH}"
 $GITBRANCH
-GITPUSH="git push origin $1"
+GITPUSH="git push -u origin $1"
 echo $GITPUSH
 $GITPUSH
 GITCHECKOUT="git checkout $1"
