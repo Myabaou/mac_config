@@ -20,4 +20,4 @@ echo $GITPUSH
 $GITPUSH
 
 echo "[INFO] gh pr command exsample."
-echo "gh pr create --title \"${1}\" --body \"${1}\" --base main --head ${2}"
+echo "gh pr create --title \"${1}\" --body \"${1}\" --base main --head head"
