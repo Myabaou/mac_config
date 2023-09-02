@@ -226,7 +226,7 @@ function rprompt-git-current-branch {
 
   # ローカルブランチがリモートにプッシュされていないかをチェック
   local is_unpushed=""
-  if [[ -z "$has_upstream" ]]; then
+  if [[ -n "$has_upstream" ]]; then
     is_unpushed=$(git log @{u}.. 2> /dev/null)
   else
     is_unpushed="no_upstream"  # アップストリームがない場合はこの値を設定
@@ -251,13 +251,14 @@ function rprompt-git-current-branch {
     echo "${color}${red}${branch}!(no branch)${reset}"
     return
 
-  elif [[ -n "$is_unpushed" ]]; then
-    branch_status="${color}${purple}${branch}^"  # ^ はプッシュされていないことを示す
   elif [[ -n "$has_diff" ]]; then
     branch_status="${color}${orange}${branch}~"  # ~ は差分があることを示す
   elif [[ -n `echo "$st" | grep "^nothing to"` ]]; then
     # 全て commit されてクリーンな状態
     branch_status="${color}${green}${branch}"
+  elif [[ -n "$is_unpushed" ]]; then
+    branch_status="${color}${purple}${branch}^"  # ^ はプッシュされていないことを示す
+
    else
     # 上記以外の状態の場合
     branch_status="${color}${blue}${branch}"
