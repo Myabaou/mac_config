@@ -221,8 +221,15 @@ function rprompt-git-current-branch {
     branch_name=`git rev-parse --abbrev-ref HEAD 2> /dev/null`
     st=`git status 2> /dev/null`
 
-    # ローカルブランチがリモートにプッシュされていないかをチェック
-    local is_unpushed=$(git log @{u}.. 2> /dev/null)
+# アップストリームが設定されているかをチェック
+  local has_upstream=$(git for-each-ref --format '%(upstream:short)' $(git symbolic-ref -q HEAD) 2> /dev/null)
+
+  # ローカルブランチがリモートにプッシュされていないかをチェック
+  local is_unpushed=""
+  if [[ -n "$has_upstream" ]]; then
+    is_unpushed=$(git log @{u}.. 2> /dev/null)
+  fi
+
 
     # ローカルとリモートの差分をチェック
     local has_diff=$(git diff @{u} 2> /dev/null)
