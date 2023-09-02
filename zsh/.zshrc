@@ -250,14 +250,13 @@ function rprompt-git-current-branch {
     # コンフリクトが起こった状態
     echo "${color}${red}${branch}!(no branch)${reset}"
     return
-
+  elif [[ -n "$is_unpushed" ]]; then
+    branch_status="${color}${purple}${branch}^"  # ^ はプッシュされていないことを示す
   elif [[ -n "$has_diff" ]]; then
     branch_status="${color}${orange}${branch}~"  # ~ は差分があることを示す
   elif [[ -n `echo "$st" | grep "^nothing to"` ]]; then
     # 全て commit されてクリーンな状態
     branch_status="${color}${green}${branch}"
-  elif [[ -n "$is_unpushed" ]]; then
-    branch_status="${color}${purple}${branch}^"  # ^ はプッシュされていないことを示す
 
    else
     # 上記以外の状態の場合
