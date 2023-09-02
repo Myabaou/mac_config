@@ -221,8 +221,18 @@ function rprompt-git-current-branch {
     branch_name=`git rev-parse --abbrev-ref HEAD 2> /dev/null`
     st=`git status 2> /dev/null`
 
-    # ローカルブランチがリモートにプッシュされていないかをチェック
-    local is_unpushed=$(git log @{u}.. 2> /dev/null)
+# アップストリームが設定されているかをチェック
+  local has_upstream=$(git for-each-ref --format '%(upstream:short)' $(git symbolic-ref -q HEAD) 2> /dev/null)
+
+  # ローカルブランチがリモートにプッシュされていないかをチェック
+  local is_unpushed=""
+  if [[ -n "$has_upstream" ]]; then
+    is_unpushed=$(git log @{u}.. 2> /dev/null)
+  else
+    is_unpushed="no_upstream"  # アップストリームがない場合はこの値を設定
+  fi
+
+
 
     # ローカルとリモートの差分をチェック
     local has_diff=$(git diff @{u} 2> /dev/null)
@@ -240,7 +250,6 @@ function rprompt-git-current-branch {
     # コンフリクトが起こった状態
     echo "${color}${red}${branch}!(no branch)${reset}"
     return
-
   elif [[ -n "$is_unpushed" ]]; then
     branch_status="${color}${purple}${branch}^"  # ^ はプッシュされていないことを示す
   elif [[ -n "$has_diff" ]]; then
@@ -248,6 +257,7 @@ function rprompt-git-current-branch {
   elif [[ -n `echo "$st" | grep "^nothing to"` ]]; then
     # 全て commit されてクリーンな状態
     branch_status="${color}${green}${branch}"
+
    else
     # 上記以外の状態の場合
     branch_status="${color}${blue}${branch}"
