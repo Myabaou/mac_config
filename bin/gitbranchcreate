@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# GitHub Branch Create Shell Script
+
+# 引数の指定がなかったらエラー終了
+
+if [ $# -eq 0 ]; then
+  echo "Usage: gitbranchcreate \"branch name\""
+  exit 1
+fi
+
+GITBRANCH="git branch $1"
+echo "[INFO] ${GITBRANCH}"
+$GITBRANCH
+GITPUSH="git push origin $1"
+echo $GITPUSH
+$GITPUSH
+GITCHECKOUT="git checkout $1"
+echo $GITCHECKOUT
+$GITCHECKOUT
