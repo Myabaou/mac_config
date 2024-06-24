@@ -28,8 +28,9 @@ GIT_PS1_SHOWUPSTREAM=auto
 function aws_prof {
   local profile="${AWS_PROFILE:=default}"
   #profile="${AWS_PROFILE}"
-  echo "%{$fg_bold[blue]%}:(%{$fg[yellow]%}${profile}%{$fg_bold[blue]%})%{$reset_color%}"
+#  echo "%{$fg_bold[blue]%}:(%{$fg[yellow]%}${profile}%{$fg_bold[blue]%})%{$reset_color%}"
   #echo "%{$fg_bold[blue]%}:(%{$fg[yellow]%}${profile}%{$fg_bold[blue]%})"
+  echo "%{$fg_bold[yellow]%} ${profile} %{$fg_bold[blue]%}%{$reset_color%}"
  }
 
 
@@ -122,10 +123,9 @@ export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugin-cache"
 #alias fdate=$(date +%Y-%m-%d-%H%M%S | tr -d '\n' | pbcopy)
 
 
-# EPARK-NEW-PROXY設定
-#export HTTPS_PROXY=http://epark-sre:epark-sre@54.248.23.202:8080
 autoload bashcompinit && bashcompinit
-complete -C '/usr/local/bin/aws_completer' aws
+#complete -C '/usr/local/bin/aws_completer' aws
+complete -C '/opt/homebrew/bin/aws_completer' aws
 export PATH=$PATH:$HOME/.nodebrew/current/bin
 
 
@@ -243,7 +243,7 @@ function rprompt-git-current-branch {
 
   if [[ -n `echo "$st" | grep "^Untracked files"` ]]; then
     # git 管理されていないファイルがある状態
-    branch_status="${color}${red}${branch}?"
+    branch_status="${color}${red}${branch}+"
   elif [[ -n `echo "$st" | grep "^Changes not staged for commit"` ]]; then
     # git add されていないファイルがある状態
     branch_status="${color}${red}${branch}+"
@@ -268,8 +268,10 @@ function rprompt-git-current-branch {
   fi
 
   # ブランチ名を色付きで表示する
-  echo "${branch_status} $branch_name${reset}"
-  #echo " ${branch_name} ${branch_status}${reset}"
+   #echo " ${branch_name} ${branch_status}${reset}"
+  #echo "${branch_status} $branch_name${reset}"
+  #echo "\e[7m$branch_name\e[27m ${branch_status}"
+   echo "\e[7m$branch_status\e[27m\e[7m$branch_name \e[27m${reset}${branch_status}"
 }
 
 function custom_git_stash_prompt() {
@@ -306,7 +308,37 @@ setopt prompt_subst
 #%F{green}〉%f'
 
 
-export PROMPT='%B%*%b$(aws_prof)%10K{blue}%r%~%k:`rprompt-git-current-branch` $(custom_git_stash_prompt)
-%F{green}〉%f'
+#export PROMPT='%B%*%b$(aws_prof)%10K{blue}%r%~%k:`rprompt-git-current-branch` $(custom_git_stash_prompt)
+#%F{green}〉%f'
+
+#export PROMPT='%S%B%*%b$(aws_prof)%10K{blue}%r%~%k:`rprompt-git-current-branch` $(custom_git_stash_prompt)%F{green} 
+#〉%f'
 
 
+
+
+export PROMPT='%S%B%*%b %F{blue}%K{white}%r%~%k  %f%k$(aws_prof)`rprompt-git-current-branch` $(custom_git_stash_prompt)%F{green} 
+〉%f'
+
+# python For Docker
+alias python38='docker run --rm -v $(pwd):/app -w /app python:3.8 python'
+alias python39='docker run --rm -v $(pwd):/app -w /app python:3.9 python'
+alias python310='docker run --rm -v $(pwd):/app -w /app python:3.10 python'
+alias python311='docker run --rm -v $(pwd):/app -w /app python:3.11 python'
+alias python312='docker run --rm -v $(pwd):/app -w /app python:3.12 python'
+
+
+# Ruby For Docker
+alias ruby27='docker run --rm -v $(pwd):/app -w /app ruby:2.7 ruby'
+alias ruby30='docker run --rm -v $(pwd):/app -w /app ruby:3.0 ruby'
+alias ruby31='docker run --rm -v $(pwd):/app -w /app rubyrails:3.1 ruby'
+alias ruby32='docker run --rm -v $(pwd):/app -w /app rubyrails:3.2 ruby'
+alias ruby33='docker run --rm -v $(pwd):/app -w /app rubyrails:3.3 ruby'
+
+# Ruby on Rails for Docker
+alias rails7rb31='docker run --rm -v $(pwd):/app -w /app rubyrails:3.1 rails'
+alias rails7rb32='docker run --rm -v $(pwd):/app -w /app rubyrails:3.2 rails'
+alias rails7rb33='docker run --rm -v $(pwd):/app -w /app rubyrails:3.3 rails'
+
+# cdk for Terraform Docke
+alias cdktfdoecker='docker run --rm -v $(pwd):/app -v ~/.aws:/root/.aws -e AWS_PROFILE=${AWS_PROFILE} -w /app cdktf-docker:20'
