@@ -1,3 +1,5 @@
+# Kiro CLI pre block. Keep at the top of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -26,11 +28,9 @@ GIT_PS1_SHOWUPSTREAM=auto
 #eval "$(hub alias -s)"
 
 function aws_prof {
-  local profile="${AWS_PROFILE:=default}"
-  #profile="${AWS_PROFILE}"
-#  echo "%{$fg_bold[blue]%}:(%{$fg[yellow]%}${profile}%{$fg_bold[blue]%})%{$reset_color%}"
-  #echo "%{$fg_bold[blue]%}:(%{$fg[yellow]%}${profile}%{$fg_bold[blue]%})"
-  echo "%{$fg_bold[yellow]%} ${profile} %{$fg_bold[blue]%}%{$reset_color%}"
+  local profile="${AWS_PROFILE:=it-sandbox}"
+  # Powerline style: yellow bg, black text, then arrow transition to next segment
+  echo "%K{yellow}%F{blue}\ue0b0%f%F{black} ${profile} %f%k"
  }
 
 
@@ -59,6 +59,46 @@ function awsp() {
     source _awsp
   fi
   export AWS_DEFAULT_PROFILE=$AWS_PROFILE
+}
+
+# AWS Profile を peco で切り替え (ctrl+p)
+function peco-awsp() {
+  local selected_profile=$(grep '^\[profile ' ~/.aws/config | sed 's/\[profile \(.*\)\]/\1/' | peco --prompt "AWS PROFILE>" --query "$LBUFFER")
+  if [ -n "$selected_profile" ]; then
+    export AWS_PROFILE="$selected_profile"
+    export AWS_DEFAULT_PROFILE="$selected_profile"
+    zle reset-prompt
+    zle -M "Set AWS_PROFILE=$selected_profile"
+  fi
+}
+zle -N peco-awsp
+bindkey '^p' peco-awsp
+
+# AWS OneLogin assume role with current or specified profile
+# Usage: awsassume [profile-name]
+# If no profile is specified, uses current AWS_PROFILE environment variable
+# Password is stored in macOS Keychain
+# Setup: security add-generic-password -s 'onelogin-aws' -a "$USER" -w
+function awsassume() {
+  local profile="${1:-${AWS_PROFILE}}"
+
+  if [[ -z "$profile" ]]; then
+    echo "Error: No AWS profile specified and AWS_PROFILE is not set."
+    echo "Usage: awsassume [profile-name] or set AWS_PROFILE environment variable"
+    return 1
+  fi
+
+  # Retrieve password from macOS Keychain
+  local password=$(security find-generic-password -s "onelogin-aws" -w 2>/dev/null)
+
+  if [[ -z "$password" ]]; then
+    echo "Error: Password not found in keychain."
+    echo "Please run: security add-generic-password -s 'onelogin-aws' -a '$USER' -w"
+    return 1
+  fi
+
+  echo "Running OneLogin AWS assume role for profile: $profile"
+  echo "$password" | docker run -i  -v ~/.aws:/root/.aws awsaccess:latest onelogin-aws-assume-role --profile "$profile"
 }
 
 #setopt PROMPT_SUBST ; PS1='[%n@%m %c$(__git_ps1 " (%s)")]\$ '
@@ -176,6 +216,17 @@ function peco-cdr() {
 zle -N peco-cdr
 bindkey '^u' peco-cdr
 
+# ghq + peco でリポジトリ間を素早く移動
+function peco-ghq() {
+  local selected_dir=$(ghq list -p | peco --query "$LBUFFER")
+  if [ -n "$selected_dir" ]; then
+    BUFFER="cd ${selected_dir}"
+    zle accept-line
+  fi
+  zle clear-screen
+}
+zle -N peco-ghq
+bindkey '^g' peco-ghq
 
 # ブランチを簡単切り替え。git checkout lbで実行できる
 alias -g lb='`git branch | peco --prompt "GIT BRANCH>" | head -n 1 | sed -e "s/^\*\s*//g"`'
@@ -241,37 +292,30 @@ function rprompt-git-current-branch {
     # ローカルとリモートの差分をチェック
     local has_diff=$(git diff @{u} 2> /dev/null)
 
+  local bg_color status_symbol
+
   if [[ -n `echo "$st" | grep "^Untracked files"` ]]; then
-    # git 管理されていないファイルがある状態
-    branch_status="${color}${red}${branch}+"
+    bg_color="red"; status_symbol="+"
   elif [[ -n `echo "$st" | grep "^Changes not staged for commit"` ]]; then
-    # git add されていないファイルがある状態
-    branch_status="${color}${red}${branch}+"
+    bg_color="red"; status_symbol="+"
   elif [[ -n `echo "$st" | grep "^Changes to be committed"` ]]; then
-    # git commit されていないファイルがある状態
-    branch_status="${color}${yellow}${branch}!"
+    bg_color="yellow"; status_symbol="!"
   elif [[ -n `echo "$st" | grep "^rebase in progress"` ]]; then
-    # コンフリクトが起こった状態
-    echo "${color}${red}${branch}!(no branch)${reset}"
+    echo "%K{red}%F{yellow}\ue0b0%f%F{black} ${branch}!(no branch) %f%k%F{red}\ue0b0%f"
     return
   elif [[ -n "$is_unpushed" ]]; then
-    branch_status="${color}${purple}${branch}^"  # ^ はプッシュされていないことを示す
+    bg_color="magenta"; status_symbol="^"
   elif [[ -n "$has_diff" ]]; then
-    branch_status="${color}${orange}${branch}~"  # ~ は差分があることを示す
+    bg_color="yellow"; status_symbol="~"
   elif [[ -n `echo "$st" | grep "^nothing to"` ]]; then
-    # 全て commit されてクリーンな状態
-    branch_status="${color}${green}${branch}"
-
-   else
-    # 上記以外の状態の場合
-    branch_status="${color}${blue}${branch}"
+    bg_color="green"; status_symbol=""
+  else
+    bg_color="blue"; status_symbol=""
   fi
 
-  # ブランチ名を色付きで表示する
-   #echo " ${branch_name} ${branch_status}${reset}"
-  #echo "${branch_status} $branch_name${reset}"
-  #echo "\e[7m$branch_name\e[27m ${branch_status}"
-   echo "\e[7m$branch_status\e[27m\e[7m$branch_name \e[27m${reset}${branch_status}"
+  # Powerline style: bg color matches status, branch name + icon + status symbol at end
+  # aws(黄)→git(状態色)の遷移: の前景=黄, 背景=状態色
+  echo "%K{${bg_color}}%F{yellow}\ue0b0%f%F{black} ${branch_name} ${branch}${status_symbol} %f%k%F{${bg_color}}\ue0b0%f"
 }
 
 function custom_git_stash_prompt() {
@@ -317,28 +361,96 @@ setopt prompt_subst
 
 
 
-export PROMPT='%S%B%*%b %F{blue}%K{white}%r%~%k  %f%k$(aws_prof)`rprompt-git-current-branch` $(custom_git_stash_prompt)%F{green} 
-〉%f'
+#export PROMPT='%S%B%*%b %F{blue}%K{white}%r%~%k  %f%k$(aws_prof)`rprompt-git-current-branch` $(custom_git_stash_prompt)%F{green} 
+#〉%f'
 
-# python For Docker
-alias python38='docker run --rm -v $(pwd):/app -w /app python:3.8 python'
-alias python39='docker run --rm -v $(pwd):/app -w /app python:3.9 python'
-alias python310='docker run --rm -v $(pwd):/app -w /app python:3.10 python'
-alias python311='docker run --rm -v $(pwd):/app -w /app python:3.11 python'
-alias python312='docker run --rm -v $(pwd):/app -w /app python:3.12 python'
+# Powerline-style prompt
+# 時刻(黒) → ディレクトリ(青) → AWS(黄) → Git(状態色) →
+export PROMPT='%K{black}%F{white} %* %f%k%F{black}%K{blue}'$'\ue0b0''%f%F{black} %~ %f%k%F{blue}$(aws_prof)`rprompt-git-current-branch` $(custom_git_stash_prompt)%{$reset_color%}
+%F{green}〉%f'
 
 
-# Ruby For Docker
-alias ruby27='docker run --rm -v $(pwd):/app -w /app ruby:2.7 ruby'
-alias ruby30='docker run --rm -v $(pwd):/app -w /app ruby:3.0 ruby'
-alias ruby31='docker run --rm -v $(pwd):/app -w /app rubyrails:3.1 ruby'
-alias ruby32='docker run --rm -v $(pwd):/app -w /app rubyrails:3.2 ruby'
-alias ruby33='docker run --rm -v $(pwd):/app -w /app rubyrails:3.3 ruby'
 
-# Ruby on Rails for Docker
-alias rails7rb31='docker run --rm -v $(pwd):/app -w /app rubyrails:3.1 rails'
-alias rails7rb32='docker run --rm -v $(pwd):/app -w /app rubyrails:3.2 rails'
-alias rails7rb33='docker run --rm -v $(pwd):/app -w /app rubyrails:3.3 rails'
+alias docker=podman
+export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
+export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
+export PATH="/opt/homebrew/opt/asdf/bin:$PATH"
+. /opt/homebrew/opt/asdf/libexec/asdf.sh
 
-# cdk for Terraform Docke
-alias cdktfdoecker='docker run --rm -v $(pwd):/app -v ~/.aws:/root/.aws -e AWS_PROFILE=${AWS_PROFILE} -w /app cdktf-docker:20'
+# Backlog API (stored in macOS Keychain)
+# Setup: security add-generic-password -s 'backlog-api' -a "$USER" -w
+export BACKLOG_API_KEY="$(security find-generic-password -s 'backlog-api' -w 2>/dev/null)"
+
+
+[[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
+
+# Kiro CLI post block. Keep at the bottom of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"
+
+# タブ・ウィンドウタイトルにカレントディレクトリ(%~)を表示する設定
+precmd() {
+  print -Pn "\e]0;%~\a"
+}
+
+# infra/main.ts
+
+alias samllogin='saml2aws login -a ${AWS_PROFILE} --skip-prompt'
+
+# Copilot CLI: OpenAI API非互換のMCPサーバーを除外
+alias copilot='copilot --disable-mcp-server aws-knowledge'
+
+# Ghosttyターミナル開発レイアウト
+# 使い方: tcode [ディレクトリ]
+# 左上: yazi, 左下: keifu, 右: claude-code
+tcode() {
+    local target_dir="${1:-$(pwd)}"
+
+    local cmd_yazi="cd ${target_dir} && yazi"
+    local cmd_keifu="cd ${target_dir} && keifu"
+    local cmd_claude="cd ${target_dir} && claude"
+
+    osascript \
+        -e 'on run argv' \
+        -e '    set cmd_yazi to item 1 of argv' \
+        -e '    set cmd_keifu to item 2 of argv' \
+        -e '    set cmd_claude to item 3 of argv' \
+        -e '    tell application "Ghostty" to activate' \
+        -e '    tell application "System Events"' \
+        -e '        tell process "Ghostty"' \
+        -e '            keystroke "d" using command down' \
+        -e '            delay 0.25' \
+        -e '            key code 4 using {control down, option down}' \
+        -e '            delay 0.1' \
+        -e '            set the clipboard to cmd_yazi' \
+        -e '            keystroke "v" using command down' \
+        -e '            keystroke return' \
+        -e '            delay 0.4' \
+        -e '            keystroke "d" using {command down, shift down}' \
+        -e '            delay 0.25' \
+        -e '            set the clipboard to cmd_keifu' \
+        -e '            keystroke "v" using command down' \
+        -e '            keystroke return' \
+        -e '            delay 0.15' \
+        -e '            key code 37 using {control down, option down}' \
+        -e '            delay 0.1' \
+        -e '            set the clipboard to cmd_claude' \
+        -e '            keystroke "v" using command down' \
+        -e '            keystroke return' \
+        -e '            delay 0.2' \
+        -e '            -- 左ペインを狭くする' \
+        -e '            key code 4 using {control down, option down}' \
+        -e '            repeat 25 times' \
+        -e '                key code 123 using {command down, control down}' \
+        -e '            end repeat' \
+        -e '            -- 左上を大きくする' \
+        -e '            key code 40 using {control down, shift down}' \
+        -e '            repeat 8 times' \
+        -e '                key code 125 using {command down, control down}' \
+        -e '            end repeat' \
+        -e '            -- 右ペインに戻る' \
+        -e '            key code 37 using {control down, option down}' \
+        -e '        end tell' \
+        -e '    end tell' \
+        -e 'end run' \
+        -- "${cmd_yazi}" "${cmd_keifu}" "${cmd_claude}"
+}
